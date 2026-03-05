@@ -1,0 +1,42 @@
+# This file contains metadata for your plugin.
+
+# This file should be included when you package your plugin.
+
+# Mandatory items:
+
+[general]
+name=Contour Lines
+qgisMinimumVersion=3.16
+qgisMaximumVersion=4.99
+description=Generates contour lines from Copernicus GLO-30 worldwide elevation data
+version=0.1
+author=Daniel Hulshof Saint Martin
+email=daniel.hulshof@gmail.com
+
+about=This plugin generates contour lines anywhere in the world using the Copernicus GLO-30 Digital Elevation Model (DEM), provided free of charge by the European Space Agency (ESA) via the Copernicus programme. No API key or account is required. DEM tiles are downloaded on demand from AWS Open Data (https://registry.opendata.aws/copernicus-dem/) and cached locally. Elevation data: Copernicus DEM © DLR e.V. 2010-2014 and © Airbus Defence and Space GmbH 2014-2018 provided under COPERNICUS by the European Union and ESA; all rights reserved.
+
+tracker=https://github.com/DanielHSM/ContourLines/issues
+repository=https://github.com/DanielHSM/ContourLines
+
+# End of mandatory metadata
+
+# Recommended items:
+
+hasProcessingProvider=yes
+
+changelog=
+    Version 0.1
+    - Initial release with worldwide coverage using Copernicus GLO-30 DEM
+
+# Tags are comma separated with spaces allowed
+tags=python, gdal, contour, contour lines, elevation, DEM, Copernicus, worldwide, global, altimetry, vector, raster
+
+homepage=https://github.com/DanielHSM/ContourLines
+category=Analysis
+icon=logo.png
+# experimental flag
+experimental=True
+
+# deprecated flag (if True, the plugin is kept in the repository, but marked
+# as deprecated)
+deprecated=False
