@@ -253,10 +253,10 @@ class ContourLinesAlgorithm(QgsProcessingAlgorithm):
 
                 # Tile footprint polygon
                 tile_points = [
-                    QgsPointXY(lon,     lat),
+                    QgsPointXY(lon, lat),
                     QgsPointXY(lon + 1, lat),
                     QgsPointXY(lon + 1, lat + 1),
-                    QgsPointXY(lon,     lat + 1)]
+                    QgsPointXY(lon, lat + 1)]
                 tile_poly = QgsGeometry.fromPolygonXY([tile_points])
 
                 # Only include tiles that actually intersect the AOI
@@ -331,8 +331,7 @@ class ContourLinesAlgorithm(QgsProcessingAlgorithm):
                         # Tile does not exist (ocean area or withheld tile)
                         feedback.pushInfo(
                             'WARNING: Tile not available (HTTP 404) — '
-                            'this may be an ocean area or a restricted tile: '
-                            + tile_name)
+                            'this may be an ocean area or a restricted tile: ' + tile_name)
                     else:
                         feedback.pushInfo(
                             '\nHTTP error downloading tile: ' + str(e))
@@ -468,8 +467,7 @@ class ContourLinesAlgorithm(QgsProcessingAlgorithm):
 
         # Load the vector layer
         layer = QgsVectorLayer(final_shp_path, 'Contour Lines')
-        feedback.pushInfo('Contour lines generated: '
-                          + str(len(list(layer.getFeatures()))))
+        feedback.pushInfo('Contour lines generated: ' + str(len(list(layer.getFeatures()))))
 
         # ------------------------------------------------------------------ #
         # Apply symbology: rule-based renderer with index and normal contours #
