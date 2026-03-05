@@ -35,7 +35,7 @@ homepage=https://github.com/DanielHSMartin/ContourLines
 category=Analysis
 icon=logo.png
 # experimental flag
-experimental=True
+experimental=False
 
 # deprecated flag (if True, the plugin is kept in the repository, but marked
 # as deprecated)

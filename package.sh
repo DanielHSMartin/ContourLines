@@ -12,7 +12,7 @@ if [ -z "$VERSION" ]; then
 fi
 
 OUTPUT_DIR="$(dirname "$PLUGIN_DIR")"
-ZIP_FILE="$OUTPUT_DIR/${PLUGIN_NAME}_v${VERSION}.zip"
+ZIP_FILE="$OUTPUT_DIR/${PLUGIN_NAME}_${VERSION}.zip"
 
 cd "$OUTPUT_DIR" || exit 1
 
