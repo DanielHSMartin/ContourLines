@@ -72,7 +72,7 @@ Downloaded DEM tiles are stored in a local cache folder (`ContourLines/` inside 
 
 ## Relationship to CurvaDeNivel
 
-This plugin is a worldwide successor to [CurvaDeNivel](https://github.com/DanielHSM/CurvaDeNivel), which generates contour lines over Brazil using INPE TOPODATA data. The core processing pipeline (smoothing algorithm, contour generation, symbology) is identical; the data source and tile grid logic have been updated for global coverage.
+This plugin is a worldwide successor to [CurvaDeNivel](https://github.com/DanielHSMartin/CurvaDeNivel), which generates contour lines over Brazil using INPE TOPODATA data. The core processing pipeline (smoothing algorithm, contour generation, symbology) is identical; the data source and tile grid logic have been updated for global coverage.
 
 ---
 
