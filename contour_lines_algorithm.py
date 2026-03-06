@@ -100,6 +100,17 @@ class ContourLinesAlgorithm(QgsProcessingAlgorithm):
                 'Area of Interest',
                 optional=False))
 
+        # Contour interval unit
+        self.addParameter(
+            QgsProcessingParameterEnum(
+                name=self.UNIT,
+                description=self.tr('Contour interval unit'),
+                options=['Metres', 'Feet'],
+                defaultValue=0,
+                optional=False
+            )
+        )
+
         # Contour interval
         self.addParameter(
             QgsProcessingParameterNumber(
@@ -109,17 +120,6 @@ class ContourLinesAlgorithm(QgsProcessingAlgorithm):
                 defaultValue=10,
                 minValue=1,
                 maxValue=5000,
-                optional=False
-            )
-        )
-
-        # Contour interval unit
-        self.addParameter(
-            QgsProcessingParameterEnum(
-                name=self.UNIT,
-                description=self.tr('Contour interval unit'),
-                options=['Metres', 'Feet'],
-                defaultValue=0,
                 optional=False
             )
         )
@@ -495,8 +495,7 @@ class ContourLinesAlgorithm(QgsProcessingAlgorithm):
         unit_label = 'ft' if use_feet else 'm'
         layer = QgsVectorLayer(
             final_shp_path,
-            'Contour Lines ({}{}){}'.format(interval, unit_label,
-                ' — ' + project_crs.authid() if project_crs.isValid() else ''))
+            'Contour Lines ({}{})'.format(interval, unit_label))
         feedback.pushInfo('Contour lines generated: ' + str(len(list(layer.getFeatures()))))
 
         # ------------------------------------------------------------------ #
