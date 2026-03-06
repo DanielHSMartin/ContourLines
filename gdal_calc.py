@@ -88,9 +88,9 @@ def GetOutputDriversFor(filename):
 
     # GMT is registered before netCDF for opening reasons, but we want
     # netCDF to be used by default for output.
-    if ext.lower() == 'nc' and len(drv_list) == 0 and \
+    if ext.lower() == 'nc' and len(drv_list) > 1 and \
        drv_list[0].upper() == 'GMT' and drv_list[1].upper() == 'NETCDF':
-           drv_list = [ 'NETCDF', 'GMT' ]
+           drv_list = ['NETCDF', 'GMT']
 
     return drv_list
 
@@ -148,7 +148,7 @@ def doit(opts, args):
 
             myFile = gdal.Open(myF, gdal.GA_ReadOnly)
             if not myFile:
-                raise IOError("No such file or directory: '%s'" % myF)
+                raise OSError("No such file or directory: '%s'" % myF)
 
             myFiles.append(myFile)
             myBands.append(myBand)
@@ -221,7 +221,7 @@ def doit(opts, args):
         myOut.SetGeoTransform(myFiles[0].GetGeoTransform())
         myOut.SetProjection(myFiles[0].GetProjection())
 
-        if opts.NoDataValue != None:
+        if opts.NoDataValue is not None:
             myOutNDV = opts.NoDataValue
         else:
             myOutNDV = DefaultNDVLookup[myOutType]
@@ -284,7 +284,7 @@ def doit(opts, args):
             myBufSize = nXValid * nYValid
 
             # loop through Y lines
-            for Y in range(0,nYBlocks):
+            for Y in range(0, nYBlocks):
                 ProgressCt += 1
                 if 10 * ProgressCt / ProgressEnd % 10 != ProgressMk and not opts.quiet:
                     ProgressMk = 10 * ProgressCt / ProgressEnd % 10
@@ -331,7 +331,7 @@ def doit(opts, args):
                 # try the calculation on the array blocks
                 try:
                     myResult = eval(opts.calc, global_namespace, local_namespace)  # nosec B307 - opts.calc is a user-provided raster math expression; eval is the intended behaviour of gdal_calc
-                except:
+                except Exception:
                     print("evaluation of calculation %s failed" %(opts.calc))
                     raise
 
@@ -343,7 +343,7 @@ def doit(opts, args):
                     myResult = numpy.ones( (nYValid,nXValid) ) * myResult
 
                 # write data block to the output file
-                myOutB=myOut.GetRasterBand(bandNo)
+                myOutB = myOut.GetRasterBand(bandNo)
                 gdalnumeric.BandWriteArray(myOutB, myResult, xoff=myX, yoff=myY)
 
     if not opts.quiet:
@@ -353,7 +353,7 @@ def doit(opts, args):
     return
 
 ################################################################
-def Calc(calc, outfile, NoDataValue=None, type=None, format=None, creation_options=[], allBands='', overwrite=False, debug=False, quiet=False, **input_files):
+def Calc(calc, outfile, NoDataValue=None, type=None, format=None, creation_options=None, allBands='', overwrite=False, debug=False, quiet=False, **input_files):
     """ Perform raster calculations with numpy syntax.
     Use any basic arithmetic supported by numpy arrays such as +-*\ along with logical
     operators such as >. Note that all files must have the same dimensions, but no projection checking is performed.
@@ -379,7 +379,7 @@ def Calc(calc, outfile, NoDataValue=None, type=None, format=None, creation_optio
     opts.NoDataValue = NoDataValue
     opts.type = type
     opts.format = format
-    opts.creation_options = creation_options
+    opts.creation_options = creation_options if creation_options is not None else []
     opts.allBands = allBands
     opts.overwrite = overwrite
     opts.debug = debug
