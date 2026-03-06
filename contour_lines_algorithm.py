@@ -73,6 +73,7 @@ class ContourLinesAlgorithm(QgsProcessingAlgorithm):
     # Parameter constants
     AREA_OF_INTEREST = 'AREA_OF_INTEREST'
     INTERVAL = 'INTERVAL'
+    UNIT = 'UNIT'
     SMOOTHING = 'SMOOTHING'
     COLOR = 'COLOR'
     PROXY_AUTH = 'PROXY_AUTH'
@@ -99,24 +100,35 @@ class ContourLinesAlgorithm(QgsProcessingAlgorithm):
                 'Area of Interest',
                 optional=False))
 
-        # Contour interval in metres
+        # Contour interval
         self.addParameter(
             QgsProcessingParameterNumber(
                 name=self.INTERVAL,
-                description=self.tr('Contour interval (metres)'),
+                description=self.tr('Contour interval'),
                 type=QgsProcessingParameterNumber.Integer,
                 defaultValue=10,
                 minValue=1,
-                maxValue=1000,
+                maxValue=5000,
                 optional=False
             )
         )
 
-        # Terrain smoothing level
+        # Contour interval unit
+        self.addParameter(
+            QgsProcessingParameterEnum(
+                name=self.UNIT,
+                description=self.tr('Contour interval unit'),
+                options=['Metres', 'Feet'],
+                defaultValue=0,
+                optional=False
+            )
+        )
+
+        # Contour line smoothing level
         self.addParameter(
             QgsProcessingParameterEnum(
                 name=self.SMOOTHING,
-                description=self.tr('Terrain smoothing level'),
+                description=self.tr('Contour line smoothing level'),
                 options=['None', 'Low', 'Medium', 'High'],
                 defaultValue='Medium',
                 usesStaticStrings=True,
@@ -199,6 +211,8 @@ class ContourLinesAlgorithm(QgsProcessingAlgorithm):
 
         # Load processing parameters
         interval = self.parameterAsInt(parameters, self.INTERVAL, context)
+        unit_index = self.parameterAsEnum(parameters, self.UNIT, context)
+        use_feet = (unit_index == 1)
         smoothing = self.parameterAsString(parameters, self.SMOOTHING, context)
         color = self.parameterAsColor(parameters, self.COLOR, context)
 
@@ -401,8 +415,8 @@ class ContourLinesAlgorithm(QgsProcessingAlgorithm):
         self.progress += 1
         feedback.setProgress(int(self.progress * self.status_total))
 
-        # Apply terrain smoothing
-        self._smooth_terrain(smoothing, feedback)
+        # Apply contour line smoothing
+        self._smooth_contour_line(smoothing, feedback)
 
         if feedback.isCanceled():
             feedback.pushInfo('\nCancelled by user')
@@ -410,6 +424,18 @@ class ContourLinesAlgorithm(QgsProcessingAlgorithm):
 
         self.progress += 1
         feedback.setProgress(int(self.progress * self.status_total))
+
+        # Convert elevation from metres to feet if requested
+        if use_feet:
+            feedback.pushInfo('\nConverting elevation values from metres to feet')
+            merged_metres = os.path.join(self.temp_dir, 'merged_metres.tif')
+            os.replace(merged_path, merged_metres)
+            Calc(
+                calc='A * 3.28084',
+                A=merged_metres,
+                outfile=merged_path,
+                NoDataValue=-32768,
+                overwrite=True)
 
         # Generate contour lines
         feedback.pushInfo('\nGenerating contour lines')
@@ -466,7 +492,11 @@ class ContourLinesAlgorithm(QgsProcessingAlgorithm):
             final_shp_path = contour_shp_path
 
         # Load the vector layer
-        layer = QgsVectorLayer(final_shp_path, 'Contour Lines')
+        unit_label = 'ft' if use_feet else 'm'
+        layer = QgsVectorLayer(
+            final_shp_path,
+            'Contour Lines ({}{}){}'.format(interval, unit_label,
+                ' — ' + project_crs.authid() if project_crs.isValid() else ''))
         feedback.pushInfo('Contour lines generated: ' + str(len(list(layer.getFeatures()))))
 
         # ------------------------------------------------------------------ #
@@ -541,8 +571,8 @@ class ContourLinesAlgorithm(QgsProcessingAlgorithm):
         QgsProject.instance().addMapLayer(layer)
         return {}
 
-    def _smooth_terrain(self, smoothing, feedback):
-        """Apply Gaussian-weighted terrain smoothing guided by TPI.
+    def _smooth_contour_line(self, smoothing, feedback):
+        """Apply Gaussian-weighted contour line smoothing guided by TPI.
 
         Smoothing levels:
           - None:   no smoothing applied
@@ -553,7 +583,7 @@ class ContourLinesAlgorithm(QgsProcessingAlgorithm):
         if smoothing == 'None':
             return
 
-        feedback.pushInfo('\nApplying terrain smoothing: ' + smoothing)
+        feedback.pushInfo('\nApplying contour line smoothing: ' + smoothing)
 
         input_dem = os.path.join(self.temp_dir, 'merged.tif')
         path = self.temp_dir
