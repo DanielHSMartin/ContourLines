@@ -9,7 +9,7 @@ name=Contour Lines
 qgisMinimumVersion=3.16
 qgisMaximumVersion=4.99
 description=Generates contour lines from Copernicus GLO-30 worldwide elevation data
-version=1.0
+version=1.1
 author=Daniel Hulshof Saint Martin
 email=daniel.hulshof@gmail.com
 
@@ -25,6 +25,8 @@ repository=https://github.com/DanielHSMartin/ContourLines
 hasProcessingProvider=yes
 
 changelog=
+    Version 1.1
+    - Added contour line interval unit selection (meters of feet). Moved from experimental to production.
     Version 1.0
     - Initial release with worldwide coverage using Copernicus GLO-30 DEM
 
