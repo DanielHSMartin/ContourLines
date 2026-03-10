@@ -387,7 +387,7 @@ class ContourLinesAlgorithm(QgsProcessingAlgorithm):
                 fn_in,
                 cutlineDSName=aoi_shp_path,
                 cropToCutline=True,
-                dstNodata=0,
+                dstNodata=-32768,
                 srcSRS='EPSG:4326',
                 dstSRS='EPSG:4326',
                 format='GTiff',
@@ -405,6 +405,7 @@ class ContourLinesAlgorithm(QgsProcessingAlgorithm):
         gdal.Warp(
             merged_path,
             clipped_rasters,
+            dstNodata=-32768,
             format='GTiff',
             callback=gdal_callback)
 
@@ -454,13 +455,15 @@ class ContourLinesAlgorithm(QgsProcessingAlgorithm):
         contour_layer.CreateField(type_field)
 
         merged_ds = gdal.Open(merged_path)
+        merged_band = merged_ds.GetRasterBand(1)
+        nodata_val = merged_band.GetNoDataValue()
         gdal.ContourGenerate(
-            merged_ds.GetRasterBand(1),
+            merged_band,
             interval,
             0,
             [],
-            0,
-            0,
+            1 if nodata_val is not None else 0,
+            nodata_val if nodata_val is not None else -32768,
             contour_layer,
             0,
             1,
@@ -551,7 +554,7 @@ class ContourLinesAlgorithm(QgsProcessingAlgorithm):
         label_settings.isExpression = True
 
         if Qgis.QGIS_VERSION_INT >= 40000:
-            label_settings.placement = Qgis.LabelPlacementMode.Line
+            label_settings.placement = Qgis.LabelPlacement.Line
             label_settings.placementFlags = Qgis.LabelLinePlacementFlag.OnLine
         else:
             label_settings.placement = QgsPalLayerSettings.Line
