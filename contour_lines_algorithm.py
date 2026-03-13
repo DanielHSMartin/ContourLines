@@ -48,11 +48,13 @@ from qgis.core import (
     QgsPointXY,
     QgsProcessingAlgorithm,
     QgsProcessingParameterAuthConfig,
+    QgsProcessingParameterBoolean,
     QgsProcessingParameterExtent,
     QgsProcessingParameterNumber,
     QgsProcessingParameterColor,
     QgsProcessingParameterEnum,
     QgsProject,
+    QgsRasterLayer,
     QgsRuleBasedRenderer,
     QgsSymbol,
     QgsSymbolLayerReference,
@@ -76,6 +78,7 @@ class ContourLinesAlgorithm(QgsProcessingAlgorithm):
     UNIT = 'UNIT'
     SMOOTHING = 'SMOOTHING'
     COLOR = 'COLOR'
+    ELEVATION_MAP = 'ELEVATION_MAP'
     PROXY_AUTH = 'PROXY_AUTH'
 
     def __init__(self):
@@ -143,6 +146,16 @@ class ContourLinesAlgorithm(QgsProcessingAlgorithm):
                 description=self.tr('Contour line colour'),
                 defaultValue='#cc7700cc',
                 opacityEnabled=True,
+                optional=False
+            )
+        )
+
+        # Elevation map option
+        self.addParameter(
+            QgsProcessingParameterBoolean(
+                name=self.ELEVATION_MAP,
+                description=self.tr('Generate Elevation Overlay (Hillshade)'),
+                defaultValue=False,
                 optional=False
             )
         )
@@ -215,6 +228,7 @@ class ContourLinesAlgorithm(QgsProcessingAlgorithm):
         use_feet = (unit_index == 1)
         smoothing = self.parameterAsString(parameters, self.SMOOTHING, context)
         color = self.parameterAsColor(parameters, self.COLOR, context)
+        generate_elevation_map = self.parameterAsBool(parameters, self.ELEVATION_MAP, context)
 
         # Set up proxy opener if authentication config is provided
         proxy_opener = None
@@ -570,6 +584,53 @@ class ContourLinesAlgorithm(QgsProcessingAlgorithm):
         feedback.setProgress(int(self.progress * self.status_total))
 
         feedback.pushInfo('\nDone.')
+
+        # Add Elevation Overlay raster layer (inserted below contour lines)
+        if generate_elevation_map:
+            feedback.pushInfo('\nAdding Elevation Overlay layer')
+
+            # Write a QML sidecar so loadDefaultStyle() picks up hillshade
+            # renderer, Dodge blend mode and cubic resampling.
+            # <resamplingStage> in QML is ignored by readSymbology(); instead
+            # we enable cubic resampling at the provider level via the
+            # <provider><resampling> element, which IS processed correctly.
+            qml_path = os.path.splitext(merged_path)[0] + '.qml'
+            qml = (
+                '<!DOCTYPE qgis PUBLIC \'http://mrcc.com/qgis.dtd\' \'SYSTEM\'>\n'
+                '<qgis version="3.0" styleCategories="AllStyleCategories">\n'
+                '  <pipe>\n'
+                '    <provider>\n'
+                '      <resampling enabled="true" maxOversampling="2"'
+                ' zoomedInResamplingMethod="cubic"'
+                ' zoomedOutResamplingMethod="cubic"/>\n'
+                '    </provider>\n'
+                '    <rasterrenderer type="hillshade" band="1" opacity="1"'
+                ' alphaBand="-1" azimuth="315" angle="45"'
+                ' multidirectionlighting="0" zFactor="1">\n'
+                '      <rasterTransparency/>\n'
+                '    </rasterrenderer>\n'
+                '    <brightnesscontrast brightness="0" contrast="0" gamma="1"/>\n'
+                '    <huesaturation saturation="0" grayscaleMode="0"'
+                ' colorizeOn="0" colorizeRed="255" colorizeGreen="128"'
+                ' colorizeBlue="128" colorizeStrength="100" invertColors="0"/>\n'
+                '    <rasterresampler maxOversampling="2"'
+                ' zoomedInResampler="cubic" zoomedOutResampler="cubic"/>\n'
+                '  </pipe>\n'
+                '  <blendMode>3</blendMode>\n'
+                '</qgis>\n'
+            )
+            with open(qml_path, 'w', encoding='utf-8') as f:
+                f.write(qml)
+            feedback.pushInfo('QML sidecar written: ' + qml_path)
+
+            # Construct the layer — loadDefaultStyle() auto-loads merged.qml.
+            dem_layer = QgsRasterLayer(merged_path, 'Elevation Overlay')
+            if dem_layer.isValid():
+                QgsProject.instance().addMapLayer(dem_layer)
+            else:
+                feedback.pushInfo(
+                    'Warning: Could not load Elevation Overlay raster layer')
+
         QgsProject.instance().addMapLayer(layer)
         return {}
 

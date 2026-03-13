@@ -13,6 +13,7 @@ A QGIS Processing plugin that generates contour lines anywhere in the world usin
 - Four terrain smoothing levels (None / Low / Medium / High)
 - Rule-based symbology: index contours (every 5th interval) with labels, normal contours
 - Automatic reprojection to the current QGIS project CRS
+- Optional Hillshade Elevation Overlay
 - Optional proxy authentication support
 
 ---
