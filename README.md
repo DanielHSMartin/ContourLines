@@ -1,6 +1,6 @@
 # Contour Lines — QGIS Plugin
 
-A QGIS Processing plugin that generates contour lines anywhere in the world using the **Copernicus GLO-30 Digital Elevation Model (DEM)** provided free of charge by the European Space Agency (ESA).
+A QGIS Processing plugin that generates contour lines and hillshade overlays anywhere in the world using the **Copernicus GLO-30 Digital Elevation Model (DEM)** provided free of charge by the European Space Agency (ESA).
 
 ---
 
@@ -9,11 +9,13 @@ A QGIS Processing plugin that generates contour lines anywhere in the world usin
 - Worldwide coverage (~30 m / 1 arc-second resolution)
 - No API key, no account, no registration required
 - DEM tiles are downloaded on demand and cached locally for reuse
-- Adjustable contour interval (1–1000 m)
+- Adjustable contour interval (1–5000 m or ft)
+- Contour interval unit: **Metres** or **Feet**
 - Four terrain smoothing levels (None / Low / Medium / High)
 - Rule-based symbology: index contours (every 5th interval) with labels, normal contours
+- Customisable contour line colour and opacity
 - Automatic reprojection to the current QGIS project CRS
-- Optional Hillshade Elevation Overlay
+- Optional **Hillshade Elevation Overlay** — adds a hillshade layer rendered from the raw clipped DEM (before smoothing or unit conversion), with Dodge blending and cubic resampling
 - Optional proxy authentication support
 
 ---
@@ -51,11 +53,13 @@ GLO-30 Public is available free of charge for any use under the terms of the [Co
 2. Navigate to **Contour Lines → Contour Lines**.
 3. Configure the parameters:
    - **Area of Interest:** Draw or select an extent on the map.
-   - **Contour interval:** Vertical spacing between contour lines in metres (default: 10 m).
-   - **Terrain smoothing level:** Controls how much the DEM is smoothed before contouring. Higher smoothing reduces noise at the cost of fine topographic detail.
+   - **Contour interval unit:** Choose **Metres** or **Feet**. When Feet is selected the DEM values are converted before contouring and all interval/elevation labels are in feet.
+   - **Contour interval:** Vertical spacing between contour lines (default: 10; range: 1–5000).
+   - **Contour line smoothing level:** Controls how much the DEM is smoothed before contouring. Higher smoothing reduces noise at the cost of fine topographic detail.
    - **Contour line colour:** Choose the colour and opacity for the output layer.
+   - **Generate Elevation Overlay (Hillshade):** When enabled, adds a hillshade raster layer rendered from the raw clipped DEM (before any smoothing or unit conversion). The layer is styled with a Hillshade renderer, Dodge blending mode and cubic resampling for smooth rendering at all zoom levels.
    - **Proxy authentication:** Optional — configure only if your network requires a proxy.
-4. Click **Run**. The plugin will download the required tiles, merge them, apply smoothing, generate contours and add the resulting layer to the map.
+4. Click **Run**. The plugin will download the required tiles, merge them, apply smoothing, generate contours and add the resulting layer(s) to the map.
 
 ### Caching
 
@@ -68,6 +72,15 @@ Downloaded DEM tiles are stored in a local cache folder (`ContourLines/` inside 
 - QGIS 3.16 or later
 - Internet connection (for tile downloads)
 - GDAL (bundled with QGIS)
+
+---
+
+## Output layers
+
+| Layer | Type | Description |
+|---|---|---|
+| Contour Lines | Vector (line) | Contour lines with rule-based symbology. Index contours (every 5th interval) are labelled with elevation values. |
+| Elevation Overlay *(optional)* | Raster | Hillshade rendered from the raw clipped DEM with Dodge blending and cubic resampling. Add it below the contour layer for a shaded relief effect. |
 
 ---
 

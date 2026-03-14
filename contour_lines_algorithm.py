@@ -30,6 +30,7 @@ __revision__ = '$Format:%H$'
 import math
 import os
 import re
+import shutil
 import urllib.error
 import urllib.request
 from urllib.parse import urlparse
@@ -155,7 +156,7 @@ class ContourLinesAlgorithm(QgsProcessingAlgorithm):
             QgsProcessingParameterBoolean(
                 name=self.ELEVATION_MAP,
                 description=self.tr('Generate Elevation Overlay (Hillshade)'),
-                defaultValue=False,
+                defaultValue=True,
                 optional=False
             )
         )
@@ -430,6 +431,11 @@ class ContourLinesAlgorithm(QgsProcessingAlgorithm):
         self.progress += 1
         feedback.setProgress(int(self.progress * self.status_total))
 
+        # Keep a copy of the raw merged DEM for the elevation overlay —
+        # before smoothing or unit conversion alters the pixel values.
+        elevation_dem_path = os.path.join(self.temp_dir, 'elevation.tif')
+        shutil.copy2(merged_path, elevation_dem_path)
+
         # Apply contour line smoothing
         self._smooth_contour_line(smoothing, feedback)
 
@@ -594,7 +600,7 @@ class ContourLinesAlgorithm(QgsProcessingAlgorithm):
             # <resamplingStage> in QML is ignored by readSymbology(); instead
             # we enable cubic resampling at the provider level via the
             # <provider><resampling> element, which IS processed correctly.
-            qml_path = os.path.splitext(merged_path)[0] + '.qml'
+            qml_path = os.path.splitext(elevation_dem_path)[0] + '.qml'
             qml = (
                 '<!DOCTYPE qgis PUBLIC \'http://mrcc.com/qgis.dtd\' \'SYSTEM\'>\n'
                 '<qgis version="3.0" styleCategories="AllStyleCategories">\n'
@@ -624,7 +630,7 @@ class ContourLinesAlgorithm(QgsProcessingAlgorithm):
             feedback.pushInfo('QML sidecar written: ' + qml_path)
 
             # Construct the layer — loadDefaultStyle() auto-loads merged.qml.
-            dem_layer = QgsRasterLayer(merged_path, 'Elevation Overlay')
+            dem_layer = QgsRasterLayer(elevation_dem_path, 'Elevation Overlay')
             if dem_layer.isValid():
                 QgsProject.instance().addMapLayer(dem_layer)
             else:

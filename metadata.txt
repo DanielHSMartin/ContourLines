@@ -9,11 +9,11 @@ name=Contour Lines
 qgisMinimumVersion=3.16
 qgisMaximumVersion=4.99
 description=Generates contour lines from Copernicus GLO-30 worldwide elevation data
-version=1.2
+version=1.2.1
 author=Daniel Hulshof Saint Martin
 email=daniel.hulshof@gmail.com
 
-about=This plugin generates contour lines anywhere in the world using the Copernicus GLO-30 Digital Elevation Model (DEM), provided free of charge by the European Space Agency (ESA) via the Copernicus programme. No API key or account is required. DEM tiles are downloaded on demand from AWS Open Data (https://registry.opendata.aws/copernicus-dem/) and cached locally. Elevation data: Copernicus DEM © DLR e.V. 2010-2014 and © Airbus Defence and Space GmbH 2014-2018 provided under COPERNICUS by the European Union and ESA; all rights reserved.
+about=This plugin generates contour lines and hillshade overlays anywhere in the world using the Copernicus GLO-30 Digital Elevation Model (DEM), provided free of charge by the European Space Agency (ESA) via the Copernicus programme. No API key or account is required. DEM tiles are downloaded on demand from AWS Open Data (https://registry.opendata.aws/copernicus-dem/) and cached locally. Elevation data: Copernicus DEM © DLR e.V. 2010-2014 and © Airbus Defence and Space GmbH 2014-2018 provided under COPERNICUS by the European Union and ESA; all rights reserved.
 
 tracker=https://github.com/DanielHSMartin/ContourLines/issues
 repository=https://github.com/DanielHSMartin/ContourLines
@@ -25,8 +25,10 @@ repository=https://github.com/DanielHSMartin/ContourLines
 hasProcessingProvider=yes
 
 changelog=
+    Version 1.2.1
+    - The hillshade overlay now uses the original unsmoothed DEM.
     Version 1.2
-    - Added option to add an elevation overlay raster with hillshade rendering.
+    - Added option to generate a hillshade elevation overlay.
     Version 1.1.1
     - Fixed contour lines wrapping around the area of interest boundary in QGIS 4 (nodata handling in clipping and contour generation).
     Version 1.1
