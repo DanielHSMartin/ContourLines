@@ -19,9 +19,13 @@ cd "$OUTPUT_DIR" || exit 1
 zip -r "$ZIP_FILE" "$PLUGIN_NAME" \
   --exclude "$PLUGIN_NAME/.git/*" \
   --exclude "$PLUGIN_NAME/.gitignore" \
+  --exclude "$PLUGIN_NAME/.claude/*" \
+  --exclude "$PLUGIN_NAME/.claude/" \
   --exclude "$PLUGIN_NAME/__pycache__/*" \
   --exclude "$PLUGIN_NAME/*.pyc" \
-  --exclude "$PLUGIN_NAME/package.sh"
+  --exclude "$PLUGIN_NAME/package.sh" \
+  --exclude "$PLUGIN_NAME/test/*" \
+  --exclude "$PLUGIN_NAME/.DS_Store"
 
 echo "Created: $ZIP_FILE"
 ls -lh "$ZIP_FILE"

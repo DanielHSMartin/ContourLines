@@ -93,7 +93,7 @@ class ContourLinesAlgorithm(QgsProcessingAlgorithm):
         if Qgis.QGIS_VERSION_INT >= 40000:
             return super().flags() | Qgis.ProcessingAlgorithmFlag.NoThreading
         else:
-            return super().flags() | QgsProcessingAlgorithm.FlagNoThreading
+            return super().flags() | QgsProcessingAlgorithm.Flag.FlagNoThreading
 
     def initAlgorithm(self, config):
 
@@ -120,7 +120,7 @@ class ContourLinesAlgorithm(QgsProcessingAlgorithm):
             QgsProcessingParameterNumber(
                 name=self.INTERVAL,
                 description=self.tr('Contour interval'),
-                type=QgsProcessingParameterNumber.Integer,
+                type=QgsProcessingParameterNumber.Type.Integer,
                 defaultValue=10,
                 minValue=1,
                 maxValue=5000,
@@ -577,8 +577,8 @@ class ContourLinesAlgorithm(QgsProcessingAlgorithm):
             label_settings.placement = Qgis.LabelPlacement.Line
             label_settings.placementFlags = Qgis.LabelLinePlacementFlag.OnLine
         else:
-            label_settings.placement = QgsPalLayerSettings.Line
-            label_settings.placementFlags = QgsPalLayerSettings.OnLine
+            label_settings.placement = QgsPalLayerSettings.Placement.Line
+            label_settings.placementFlags = QgsPalLayerSettings.LinePlacementFlags.OnLine
 
         label_settings.setFormat(text_format)
 
@@ -793,18 +793,19 @@ class ContourLinesAlgorithm(QgsProcessingAlgorithm):
                 '<NODATA>-32768</NODATA>'
                 '<Kernel normalized="1"><Size>13</Size>'
                 '<Coefs>'
-                '0 0 0 0 0 0 0 0 0 0 0 0 0 '
-                '0 0 0 0 0 0.000001 0.000001 0.000001 0 0 0 0 '
-                '0 0 0 0 0.000001 0.000014 0.000055 0.000088 0.000055 0.000014 0.000001 0 0 '
-                '0 0 0.000014 0.000362 0.003672 0.014648 0.023204 0.014648 0.003672 0.000362 0.000014 0 0 '
-                '0 0.000001 0.000055 0.001445 0.014648 0.058433 0.092564 0.058433 0.014648 0.001445 0.000055 0.000001 0 '
-                '0 0.000001 0.000088 0.002289 0.023204 0.092564 0.146632 0.092564 0.023204 0.002289 0.000088 0.000001 0 '
-                '0 0.000001 0.000055 0.001445 0.014648 0.058433 0.092564 0.058433 0.014648 0.001445 0.000055 0.000001 0 '
-                '0 0 0.000014 0.000362 0.003672 0.014648 0.023204 0.014648 0.003672 0.000362 0.000014 0 0 '
-                '0 0 0 0.000001 0.000036 0.000362 0.001445 0.002289 0.001445 0.000362 0.000036 0.000001 0 '
-                '0 0 0 0 0.000001 0.000014 0.000055 0.000088 0.000055 0.000014 0.000001 0 0 '
-                '0 0 0 0 0 0.000001 0.000001 0.000001 0 0 0 0 0 '
-                '0 0 0 0 0 0 0 0 0 0 0 0 0'
+                '0.000005 0.000019 0.000060 0.000144 0.000269 0.000391 0.000443 0.000391 0.000269 0.000144 0.000060 0.000019 0.000005 '
+                '0.000019 0.000077 0.000237 0.000569 0.001063 0.001546 0.001752 0.001546 0.001063 0.000569 0.000237 0.000077 0.000019 '
+                '0.000060 0.000237 0.000730 0.001752 0.003273 0.004762 0.005396 0.004762 0.003273 0.001752 0.000730 0.000237 0.000060 '
+                '0.000144 0.000569 0.001752 0.004202 0.007851 0.011423 0.012944 0.011423 0.007851 0.004202 0.001752 0.000569 0.000144 '
+                '0.000269 0.001063 0.003273 0.007851 0.014667 0.021341 0.024183 0.021341 0.014667 0.007851 0.003273 0.001063 0.000269 '
+                '0.000391 0.001546 0.004762 0.011423 0.021341 0.031051 0.035185 0.031051 0.021341 0.011423 0.004762 0.001546 0.000391 '
+                '0.000443 0.001752 0.005396 0.012944 0.024183 0.035185 0.039870 0.035185 0.024183 0.012944 0.005396 0.001752 0.000443 '
+                '0.000391 0.001546 0.004762 0.011423 0.021341 0.031051 0.035185 0.031051 0.021341 0.011423 0.004762 0.001546 0.000391 '
+                '0.000269 0.001063 0.003273 0.007851 0.014667 0.021341 0.024183 0.021341 0.014667 0.007851 0.003273 0.001063 0.000269 '
+                '0.000144 0.000569 0.001752 0.004202 0.007851 0.011423 0.012944 0.011423 0.007851 0.004202 0.001752 0.000569 0.000144 '
+                '0.000060 0.000237 0.000730 0.001752 0.003273 0.004762 0.005396 0.004762 0.003273 0.001752 0.000730 0.000237 0.000060 '
+                '0.000019 0.000077 0.000237 0.000569 0.001063 0.001546 0.001752 0.001546 0.001063 0.000569 0.000237 0.000077 0.000019 '
+                '0.000005 0.000019 0.000060 0.000144 0.000269 0.000391 0.000443 0.000391 0.000269 0.000144 0.000060 0.000019 0.000005'
                 '</Coefs></Kernel>')
             with open(os.path.join(path, 'dem_blur_13x13.vrt'), 'wt') as f:
                 f.write(data)

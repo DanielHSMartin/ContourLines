@@ -9,7 +9,7 @@ name=Contour Lines
 qgisMinimumVersion=3.16
 qgisMaximumVersion=4.99
 description=Generates contour lines from Copernicus GLO-30 worldwide elevation data
-version=1.2.1
+version=1.2.2
 author=Daniel Hulshof Saint Martin
 email=daniel.hulshof@gmail.com
 
@@ -25,6 +25,10 @@ repository=https://github.com/DanielHSMartin/ContourLines
 hasProcessingProvider=yes
 
 changelog=
+    Version 1.2.2
+    - Fixed the "High" smoothing level: its 13x13 gaussian kernel had 155 coefficients instead of 169, so GDAL rejected the filter. Only that level was affected; the others worked normally.
+    - The "High" level now smooths noticeably more than "Medium". Both previously used the same standard deviation and produced nearly identical results.
+    - Fixed Qt6 compatibility: four enums were accessed without their type scope (QgsProcessingAlgorithm.Flag, QgsProcessingParameterNumber.Type, QgsPalLayerSettings.Placement and QgsPalLayerSettings.LinePlacementFlags). Qt6 made enums scoped and those accesses failed; the scoped form also works on Qt5.
     Version 1.2.1
     - The hillshade overlay now uses the original unsmoothed DEM.
     Version 1.2
